@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,6 +15,8 @@ import java.util.List;
 @Entity
 @Table
 public class Directory {
+
+
     @SequenceGenerator(
             name = "direct_sequence",
             sequenceName = "direct_sequence",
@@ -42,5 +45,13 @@ public class Directory {
 
     @OneToMany
     private List<Directory> children;
+
+    public Directory(String name, String description, Owner owner, Directory parentDirectory, List<Directory> children) {
+        this.name = name;
+        this.description = description;
+        this.owner = owner;
+        this.parentDirectory = parentDirectory;
+        this.children = children;
+    }
 
 }
