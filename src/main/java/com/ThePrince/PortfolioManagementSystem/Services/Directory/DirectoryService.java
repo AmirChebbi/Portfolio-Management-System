@@ -13,7 +13,7 @@ public interface DirectoryService {
 
     public Directory intializeGenesisDirectory(Owner owner); //creates the first Directory given to a new Portfolio Owner
 
-    public DirectoryDTO createNewDirectory(Owner owner, DirectoryPathDTO parentDirectory);
+    public DirectoryDTO createNewDirectory(Owner owner, DirectoryPathDTO parentDirectory, DirectoryDTO directoryDTO);
 
     public DirectoryDTO getDirectoryById(long id);
 
