@@ -6,7 +6,9 @@ import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTO;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTOMapper;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathDTO;
 import com.ThePrince.PortfolioManagementSystem.Exceptions.DirectoryExistsException;
+import com.ThePrince.PortfolioManagementSystem.Exceptions.RessourceNotFoundException;
 import com.ThePrince.PortfolioManagementSystem.Repositories.Directory.DirectoryRepository;
+import org.antlr.v4.runtime.DiagnosticErrorListener;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -52,7 +54,8 @@ public class DirectoryServiceImpl implements DirectoryService{
     }
     @Override
     public DirectoryDTO getDirectoryById(long id) {
-        return null;
+        Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory was not found"));
+        return directoryDTOMapper.apply(directory);
     }
 
     @Override
