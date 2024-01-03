@@ -4,6 +4,7 @@ import com.ThePrince.PortfolioManagementSystem.DAOs.Directory.Directory;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTO;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathDTO;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,17 +14,17 @@ public interface DirectoryService {
 
     public Directory intializeGenesisDirectory(Owner owner); //creates the first Directory given to a new Portfolio Owner
 
-    public DirectoryDTO createNewDirectory(Owner owner, DirectoryPathDTO parentDirectory, DirectoryDTO directoryDTO);
+    public ResponseEntity<Object> createNewDirectory(Owner owner, DirectoryPathDTO parentDirectory, DirectoryDTO directoryDTO);
 
-    public DirectoryDTO getDirectoryById(long id);
+    public ResponseEntity<Object> getDirectoryById(long id);
 
-    public List<DirectoryPathDTO> findDirectoryPath(long id); //returns the directory Path
+    public ResponseEntity<Object> findDirectoryPath(long id,List<DirectoryPathDTO> directoryPathDTOS); //returns the directory Path
 
-    public DirectoryDTO moveDirectory(long id, long newParentDirectoryId);   //returns the new Parent Directory
+    public ResponseEntity<Object> moveDirectory(long id, long newParentDirectoryId);   //returns the new Parent Directory
 
     public List<DirectoryPathDTO> deleteDirectoryById(long id); //returns all the child directories that were deleted with it
 
-    public DirectoryDTO copyDirectory(long id, long parentId);
+    public ResponseEntity<Object> copyDirectory(long id, long parentId);
 
-    public void updateDirectory(long id, DirectoryDTO directoryDTO);
+    public ResponseEntity<Object> updateDirectory(long id, DirectoryDTO directoryDTO);
 }

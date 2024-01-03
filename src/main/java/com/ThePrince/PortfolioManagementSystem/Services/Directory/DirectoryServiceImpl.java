@@ -5,10 +5,13 @@ import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTO;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTOMapper;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathDTO;
+import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathMapper;
 import com.ThePrince.PortfolioManagementSystem.Exceptions.DirectoryExistsException;
 import com.ThePrince.PortfolioManagementSystem.Exceptions.RessourceNotFoundException;
+import com.ThePrince.PortfolioManagementSystem.Handler.ResponseHandler;
 import com.ThePrince.PortfolioManagementSystem.Repositories.Directory.DirectoryRepository;
-import org.antlr.v4.runtime.DiagnosticErrorListener;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,10 +21,13 @@ public class DirectoryServiceImpl implements DirectoryService{
 
     private final DirectoryRepository directoryRepository;
 
+    private final DirectoryPathMapper directoryPathMapper;
+
     private final DirectoryDTOMapper directoryDTOMapper;
 
-    public DirectoryServiceImpl(DirectoryRepository directoryRepository, DirectoryDTOMapper directoryDTOMapper) {
+    public DirectoryServiceImpl(DirectoryRepository directoryRepository, DirectoryPathMapper directoryPathMapper, DirectoryDTOMapper directoryDTOMapper) {
         this.directoryRepository = directoryRepository;
+        this.directoryPathMapper = directoryPathMapper;
         this.directoryDTOMapper = directoryDTOMapper;
     }
 
@@ -37,7 +43,7 @@ public class DirectoryServiceImpl implements DirectoryService{
     }
 
     @Override
-    public DirectoryDTO createNewDirectory(Owner owner, DirectoryPathDTO parentDirectory,DirectoryDTO directoryDTO) {
+    public ResponseEntity<Object> createNewDirectory(Owner owner, DirectoryPathDTO parentDirectory, DirectoryDTO directoryDTO) {
         if (!directoryRepository.existsByNameAndParentDirectory(directoryDTO.name(), parentDirectory.id())) {
             Directory newDirectory = new Directory(
                     directoryDTO.name(),
@@ -47,24 +53,34 @@ public class DirectoryServiceImpl implements DirectoryService{
                     new ArrayList<Directory>()
             );
             directoryRepository.save(newDirectory);
-            return directoryDTOMapper.apply(newDirectory);
+            return ResponseHandler.generateResponse(directoryDTOMapper.apply(newDirectory), HttpStatus.OK, new ArrayList<DirectoryPathDTO>());
         } else {
             throw new DirectoryExistsException("There is already a directory here named " + directoryDTO.name());
         }
     }
+
     @Override
-    public DirectoryDTO getDirectoryById(long id) {
-        Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory was not found"));
-        return directoryDTOMapper.apply(directory);
+    public ResponseEntity<Object> getDirectoryById(long id) {
+        if (directoryRepository.existsById(id)){
+            return ResponseHandler.generateResponse(directoryDTOMapper.apply(directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("this fdirectory doesn't exist!"))));
+        } else {
+
+        }
     }
 
     @Override
-    public List<DirectoryPathDTO> findDirectoryPath(long id) {
-        return null;
+    public ResponseEntity<Object> findDirectoryPath(long id,List<DirectoryPathDTO> directoryPathDTOS) {
+        Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("this Directory doesn't exist in our system"));
+        directoryPathDTOS.add(directoryPathMapper.apply(directory));
+        if (directory.getChildren() == null){
+            return ResponseHandler.generateResponse(directoryPathDTOS.reversed(), HttpStatus.OK);
+        } else {
+            return findDirectoryPath(directory.getParentDirectory().getId(),directoryPathDTOS);
+        }
     }
 
     @Override
-    public DirectoryDTO moveDirectory(long id, long newParentDirectoryId) {
+    public ResponseEntity<Object> moveDirectory(long id, long newParentDirectoryId) {
         return null;
     }
 
@@ -74,13 +90,13 @@ public class DirectoryServiceImpl implements DirectoryService{
     }
 
     @Override
-    public DirectoryDTO copyDirectory(long id, long parentId) {
+    public ResponseEntity<Object> copyDirectory(long id, long parentId) {
         return null;
     }
 
     @Override
-    public void updateDirectory(long id, DirectoryDTO directoryDTO) {
-
+    public ResponseEntity<Object> updateDirectory(long id, DirectoryDTO directoryDTO) {
+        return null;
     }
 
     public boolean existsByNameAndParentDirectory(String name, DirectoryPathDTO parentDirectory){
