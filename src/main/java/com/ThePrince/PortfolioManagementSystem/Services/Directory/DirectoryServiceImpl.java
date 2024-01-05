@@ -62,9 +62,9 @@ public class DirectoryServiceImpl implements DirectoryService{
     @Override
     public ResponseEntity<Object> getDirectoryById(long id) {
         if (directoryRepository.existsById(id)){
-            return ResponseHandler.generateResponse(directoryDTOMapper.apply(directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("this fdirectory doesn't exist!"))));
+            return ResponseHandler.generateResponse(directoryDTOMapper.apply(directoryRepository.findById(id).get()),HttpStatus.OK);
         } else {
-
+            throw new  RessourceNotFoundException("This directory doesn't exist !!");
         }
     }
 
@@ -81,7 +81,12 @@ public class DirectoryServiceImpl implements DirectoryService{
 
     @Override
     public ResponseEntity<Object> moveDirectory(long id, long newParentDirectoryId) {
-        return null;
+            Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
+            Directory parentDirectory = directoryRepository.findById(newParentDirectoryId).orElseThrow(() -> new RessourceNotFoundException("The new parent repository doesn't exist !!") )
+            directory.setParentDirectory(parentDirectory);
+            directoryRepository.save(directory);
+            String successMessage = "Your directory's path was changed successfully !";
+            return ResponseHandler.generateResponse(successMessage, HttpStatus.OK);
     }
 
     @Override
