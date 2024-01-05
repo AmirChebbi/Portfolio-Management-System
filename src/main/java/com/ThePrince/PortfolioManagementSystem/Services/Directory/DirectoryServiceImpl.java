@@ -49,7 +49,7 @@ public class DirectoryServiceImpl implements DirectoryService{
                     directoryDTO.name(),
                     directoryDTO.description(),
                     owner,
-                    directoryRepository.getById(parentDirectory.id()),
+                    directoryRepository.findById(parentDirectory.id()).get(),
                     new ArrayList<Directory>()
             );
             directoryRepository.save(newDirectory);
@@ -82,7 +82,7 @@ public class DirectoryServiceImpl implements DirectoryService{
     @Override
     public ResponseEntity<Object> moveDirectory(long id, long newParentDirectoryId) {
             Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
-            Directory parentDirectory = directoryRepository.findById(newParentDirectoryId).orElseThrow(() -> new RessourceNotFoundException("The new parent repository doesn't exist !!") )
+            Directory parentDirectory = directoryRepository.findById(newParentDirectoryId).orElseThrow(() -> new RessourceNotFoundException("The new parent repository doesn't exist !!") );
             directory.setParentDirectory(parentDirectory);
             directoryRepository.save(directory);
             String successMessage = "Your directory's path was changed successfully !";
@@ -90,8 +90,28 @@ public class DirectoryServiceImpl implements DirectoryService{
     }
 
     @Override
-    public List<DirectoryPathDTO> deleteDirectoryById(long id) {
-        return null;
+    public ResponseEntity<Object> deleteDirectoryById(long id) {
+        directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist!!"));
+        List<DirectoryPathDTO> list = deleteDirectoryByIdRecursive(id);
+        return ResponseHandler.generateResponse(list, HttpStatus.OK);
+    }
+
+    public List<DirectoryPathDTO> deleteDirectoryByIdRecursive(long id) {
+        Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This repository doesn't Exist!!"));
+        List<DirectoryPathDTO> list = new ArrayList<>();
+        if (!directory.getChildren().isEmpty()){
+            for (Directory child : directory.getChildren()){
+                 list.addAll(deleteDirectoryByIdRecursive(child.getId()));
+            }
+            list.add(directoryPathMapper.apply(directory));
+            directoryRepository.deleteById(id);
+            return list;
+        } else {
+            DirectoryPathDTO directoryPathDTO = directoryPathMapper.apply(directory);
+            directoryRepository.deleteById(id);
+            list.add(directoryPathDTO);
+            return list;
+        }
     }
 
     @Override

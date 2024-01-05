@@ -22,7 +22,7 @@ public interface DirectoryService {
 
     public ResponseEntity<Object> moveDirectory(long id, long newParentDirectoryId);   //returns the new Parent Directory
 
-    public List<DirectoryPathDTO> deleteDirectoryById(long id); //returns all the child directories that were deleted with it
+    public ResponseEntity<Object> deleteDirectoryById(long id); //returns all the child directories that were deleted with it
 
     public ResponseEntity<Object> copyDirectory(long id, long parentId);
 
