@@ -2,6 +2,7 @@ package com.ThePrince.PortfolioManagementSystem.Services.Directory;
 
 import com.ThePrince.PortfolioManagementSystem.DAOs.Directory.Directory;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
+import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.UserEntity;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTO;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTOMapper;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathDTO;
@@ -12,10 +13,16 @@ import com.ThePrince.PortfolioManagementSystem.Handler.ResponseHandler;
 import com.ThePrince.PortfolioManagementSystem.Repositories.Directory.DirectoryRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.server.authorization.authentication.ClientSecretAuthenticationProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 @Service
 public class DirectoryServiceImpl implements DirectoryService{
 
@@ -44,7 +51,7 @@ public class DirectoryServiceImpl implements DirectoryService{
 
     @Override
     public ResponseEntity<Object> createNewDirectory(Owner owner, DirectoryPathDTO parentDirectory, DirectoryDTO directoryDTO) {
-        if (!directoryRepository.existsByNameAndParentDirectory(directoryDTO.name(), parentDirectory.id())) {
+        if (Objects.nonNull(findByNameAndParentDirectory(directoryDTO.name(), parentDirectory.id()))) {
             Directory newDirectory = new Directory(
                     directoryDTO.name(),
                     directoryDTO.description(),
@@ -73,7 +80,7 @@ public class DirectoryServiceImpl implements DirectoryService{
         Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("this Directory doesn't exist in our system"));
         directoryPathDTOS.add(directoryPathMapper.apply(directory));
         if (directory.getChildren() == null){
-            return ResponseHandler.generateResponse(directoryPathDTOS.reversed(), HttpStatus.OK);
+            return ResponseHandler.generateResponse(directoryPathDTOS, HttpStatus.OK);
         } else {
             return findDirectoryPath(directory.getParentDirectory().getId(),directoryPathDTOS);
         }
@@ -115,8 +122,55 @@ public class DirectoryServiceImpl implements DirectoryService{
     }
 
     @Override
-    public ResponseEntity<Object> copyDirectory(long id, long parentId) {
-        return null;
+    public ResponseEntity<Object> copyDirectory(long id, long parentId, @AuthenticationPrincipal UserDetails userDetails) {
+        Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
+        Directory newParentDirectory = directoryRepository.findById(parentId).orElseThrow( () -> new RessourceNotFoundException("The new parent directory doesn't exist !!"));
+        if ((newParentDirectory.getOwner().getEmail() == userDetails.getUsername())) {
+            if ((parentId == directory.getParentDirectory().getId())) {
+                Directory copy = new Directory(
+                        directory.getName()+"copy",
+                        directory.getDescription(),
+                        directory.getOwner(),
+                        directory.getParentDirectory(),
+                        new ArrayList<Directory>()
+                );
+                directoryRepository.save(copy);
+            } else {
+                Directory copy = new Directory(
+                        directory.getName(),
+                        directory.getDescription(),
+                        directory.getOwner(),
+                        newParentDirectory,
+                        new ArrayList<Directory>()
+                );
+                directoryRepository.save(copy);
+            }
+            Directory savedCopy = findByNameAndParentDirectory(directory.getName(), newParentDirectory.getId());
+            savedCopy.setChildren(copyChildrenDirectoriesRecursive(directory));
+            String successMessage = String.format("Your repository named " + savedCopy.getName()+" was copied successfully into " +directory.getParentDirectory().getName()+" !!");
+            return ResponseHandler.generateResponse(successMessage, HttpStatus.OK);
+        } else {
+            return ResponseHandler.generateResponse("Act was not successful !!", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    public List<Directory> copyChildrenDirectoriesRecursive(Directory parent){
+        List<Directory> children = parent.getChildren();
+        List<Directory> newChildren = new ArrayList<>();
+        if (!parent.getChildren().isEmpty()) {
+            for (Directory child : children) {
+                newChildren.add(new Directory(
+                        child.getName(),
+                        child.getDescription(),
+                        child.getOwner(),
+                        parent,
+                        copyChildrenDirectoriesRecursive(child)
+                ));
+            }
+            return newChildren;
+        } else {
+            return newChildren;
+        }
     }
 
     @Override
@@ -124,8 +178,8 @@ public class DirectoryServiceImpl implements DirectoryService{
         return null;
     }
 
-    public boolean existsByNameAndParentDirectory(String name, DirectoryPathDTO parentDirectory){
-        return directoryRepository.existsByNameAndParentDirectory(name,parentDirectory.id());
+    public Directory findByNameAndParentDirectory(String name, long parentId){
+        return directoryRepository.findByNameAndParentDirectory(name,parentId);
     }
 
 }

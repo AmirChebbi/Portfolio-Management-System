@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface DirectoryRepository extends JpaRepository<Directory, Long> {
 
     @Query(value = "SELECT d from Directory d where d.name=:name and d.parentDirectory.id=:parentDirectoryId")
-    boolean existsByNameAndParentDirectory(String name, long parentDirectoryId);
+    Directory findByNameAndParentDirectory(String name, long parentDirectoryId);
 }
