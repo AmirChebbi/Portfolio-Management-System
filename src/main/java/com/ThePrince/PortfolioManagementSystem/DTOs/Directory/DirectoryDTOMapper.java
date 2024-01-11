@@ -1,6 +1,7 @@
 package com.ThePrince.PortfolioManagementSystem.DTOs.Directory;
 
 import com.ThePrince.PortfolioManagementSystem.DAOs.Directory.Directory;
+import com.ThePrince.PortfolioManagementSystem.Repositories.Directory.DirectoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
@@ -9,6 +10,7 @@ public class DirectoryDTOMapper implements Function<Directory, DirectoryDTO> {
 
     private final DirectoryPathMapper directoryPathMapper;
 
+//    private final DirectoryRepository directoryRepository;
     public DirectoryDTOMapper(DirectoryPathMapper directoryPathMapper) {
         this.directoryPathMapper = directoryPathMapper;
     }

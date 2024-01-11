@@ -2,7 +2,6 @@ package com.ThePrince.PortfolioManagementSystem.Services.Directory;
 
 import com.ThePrince.PortfolioManagementSystem.DAOs.Directory.Directory;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
-import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.UserEntity;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTO;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTOMapper;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathDTO;
@@ -14,9 +13,7 @@ import com.ThePrince.PortfolioManagementSystem.Repositories.Directory.DirectoryR
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.server.authorization.authentication.ClientSecretAuthenticationProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -79,7 +76,7 @@ public class DirectoryServiceImpl implements DirectoryService{
     public ResponseEntity<Object> findDirectoryPath(long id,List<DirectoryPathDTO> directoryPathDTOS) {
         Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("this Directory doesn't exist in our system"));
         directoryPathDTOS.add(directoryPathMapper.apply(directory));
-        if (directory.getChildren() == null){
+        if (directory.getChildren().isEmpty()){
             return ResponseHandler.generateResponse(directoryPathDTOS, HttpStatus.OK);
         } else {
             return findDirectoryPath(directory.getParentDirectory().getId(),directoryPathDTOS);
@@ -98,26 +95,49 @@ public class DirectoryServiceImpl implements DirectoryService{
 
     @Override
     public ResponseEntity<Object> deleteDirectoryById(long id) {
-        directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist!!"));
-        List<DirectoryPathDTO> list = deleteDirectoryByIdRecursive(id);
-        return ResponseHandler.generateResponse(list, HttpStatus.OK);
+        Directory directory  = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist!!"));
+        Directory parentDirectory = directory.getParentDirectory();
+        List<Directory> children = parentDirectory.getChildren();
+        children.remove(directory);
+        parentDirectory.setChildren(children);
+        directoryRepository.save(parentDirectory);
+
+//        List<DirectoryPathDTO> list = deleteDirectoryByIdRecursive(id);
+
+        int sum = deleteDirectoryByIdRecursive(id,0);
+        String successMessage = String.format("Your directory named "+ directory.getName()+" was deleted successfully, and a sum of "+sum + " directories were deleted with it.");
+        return ResponseHandler.generateResponse(successMessage, HttpStatus.OK);
     }
 
-    public List<DirectoryPathDTO> deleteDirectoryByIdRecursive(long id) {
+    public int deleteDirectoryByIdRecursive(long id, int sum) {
+//    public List<DirectoryPathDTO> deleteDirectoryByIdRecursive(long id) {
+
         Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This repository doesn't Exist!!"));
-        List<DirectoryPathDTO> list = new ArrayList<>();
+
+//        List<DirectoryPathDTO> list = new ArrayList<>();
+
         if (!directory.getChildren().isEmpty()){
             for (Directory child : directory.getChildren()){
-                 list.addAll(deleteDirectoryByIdRecursive(child.getId()));
+                sum =+ deleteDirectoryByIdRecursive(child.getId(),sum);
+
+//                 list.addAll(deleteDirectoryByIdRecursive(child.getId()));
             }
-            list.add(directoryPathMapper.apply(directory));
+//            list.add(directoryPathMapper.apply(directory));
+
             directoryRepository.deleteById(id);
-            return list;
+            return sum;
+
+//            return list;
+
         } else {
-            DirectoryPathDTO directoryPathDTO = directoryPathMapper.apply(directory);
+
+//            DirectoryPathDTO directoryPathDTO = directoryPathMapper.apply(directory);
             directoryRepository.deleteById(id);
-            list.add(directoryPathDTO);
-            return list;
+
+//            list.add(directoryPathDTO);
+//            return list;
+            return sum+1;
+
         }
     }
 
@@ -125,8 +145,8 @@ public class DirectoryServiceImpl implements DirectoryService{
     public ResponseEntity<Object> copyDirectory(long id, long parentId, @AuthenticationPrincipal UserDetails userDetails) {
         Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
         Directory newParentDirectory = directoryRepository.findById(parentId).orElseThrow( () -> new RessourceNotFoundException("The new parent directory doesn't exist !!"));
-        if ((newParentDirectory.getOwner().getEmail() == userDetails.getUsername())) {
-            if ((parentId == directory.getParentDirectory().getId())) {
+        if ((Objects.equals(newParentDirectory.getOwner().getEmail(), userDetails.getUsername()))) {
+            if ((Objects.equals(parentId, directory.getParentDirectory().getId()))) {
                 Directory copy = new Directory(
                         directory.getName()+"copy",
                         directory.getDescription(),
@@ -173,8 +193,16 @@ public class DirectoryServiceImpl implements DirectoryService{
         }
     }
 
+
     @Override
-    public ResponseEntity<Object> updateDirectory(long id, DirectoryDTO directoryDTO) {
+    public ResponseEntity<Object> updateDirectory(long id, DirectoryDTO directoryDTO, @AuthenticationPrincipal UserDetails userDetails) {
+ /*       if (Objects.equals(userDetails.getUsername(),directoryDTO.ownerEmail())) {
+            Directory directory = directoryDTOMapper.reverse(directoryDTO);
+            directory.setId(id);
+            directoryRepository.save(directory);
+            return ;
+        }
+*/
         return null;
     }
 

@@ -28,5 +28,5 @@ public interface DirectoryService {
 
     public ResponseEntity<Object> copyDirectory(long id, long parentId, @AuthenticationPrincipal UserDetails userDetails);
 
-    public ResponseEntity<Object> updateDirectory(long id, DirectoryDTO directoryDTO);
+    public ResponseEntity<Object> updateDirectory(long id, DirectoryDTO directoryDTO, @AuthenticationPrincipal UserDetails userDetails);
 }

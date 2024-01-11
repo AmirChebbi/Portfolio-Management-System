@@ -2,11 +2,9 @@ package com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity;
 
 import com.ThePrince.PortfolioManagementSystem.DAOs.Role.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.cache.spi.SecondLevelCacheLogger_$logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -14,7 +12,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "role")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
