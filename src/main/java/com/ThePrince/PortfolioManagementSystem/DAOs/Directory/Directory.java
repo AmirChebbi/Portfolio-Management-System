@@ -53,5 +53,8 @@ public class Directory {
         this.parentDirectory = parentDirectory;
         this.children = children;
     }
+    public void addChild(Directory directory){
+        this.children.add(directory);
+    }
 
 }

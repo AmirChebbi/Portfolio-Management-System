@@ -16,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -47,13 +48,13 @@ public class DirectoryServiceImpl implements DirectoryService{
     }
 
     @Override
-    public ResponseEntity<Object> createNewDirectory(Owner owner, DirectoryPathDTO parentDirectory, DirectoryDTO directoryDTO) {
-        if (Objects.nonNull(findByNameAndParentDirectory(directoryDTO.name(), parentDirectory.id()))) {
+    public ResponseEntity<Object> createNewDirectory(long parentId, DirectoryDTO directoryDTO, UserDetails userDetails) {
+        if (Objects.nonNull(findByNameAndParentDirectory(directoryDTO.name(), parentId))) {
             Directory newDirectory = new Directory(
                     directoryDTO.name(),
                     directoryDTO.description(),
-                    owner,
-                    directoryRepository.findById(parentDirectory.id()).get(),
+                    directoryRepository.findById(directoryDTO.id()).get().getOwner(),
+                    directoryRepository.findById(parentId).get(),
                     new ArrayList<Directory>()
             );
             directoryRepository.save(newDirectory);
@@ -73,28 +74,35 @@ public class DirectoryServiceImpl implements DirectoryService{
     }
 
     @Override
-    public ResponseEntity<Object> findDirectoryPath(long id,List<DirectoryPathDTO> directoryPathDTOS) {
+    public ResponseEntity<Object> findDirectoryPath(long id) {
         Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("this Directory doesn't exist in our system"));
+        Owner owner = directory.getOwner();
+        List<DirectoryPathDTO> directoryPathDTOS = new ArrayList<>();
         directoryPathDTOS.add(directoryPathMapper.apply(directory));
-        if (directory.getChildren().isEmpty()){
-            return ResponseHandler.generateResponse(directoryPathDTOS, HttpStatus.OK);
+        while (Objects.nonNull(directory.getParentDirectory())){
+
+        }
+        return ResponseHandler.generateResponse(directoryPathDTOS, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Object> moveDirectory(long id, long newParentDirectoryId,UserDetails userDetails) {
+        Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
+        Directory parentDirectory = directoryRepository.findById(newParentDirectoryId).orElseThrow(() -> new RessourceNotFoundException("The new parent repository doesn't exist !!"));
+        if (Objects.equals(directory.getOwner(), userDetails)) {
+            directory.setParentDirectory(parentDirectory);
+            parentDirectory.addChild(directory);
+            directoryRepository.save(directory);
+            directoryRepository.save(parentDirectory);
+            String successMessage = "Your directory's path was changed successfully !";
+            return ResponseHandler.generateResponse(successMessage, HttpStatus.OK);
         } else {
-            return findDirectoryPath(directory.getParentDirectory().getId(),directoryPathDTOS);
+            throw new RessourceNotFoundException("This directory doesn't exist !!");
         }
     }
 
     @Override
-    public ResponseEntity<Object> moveDirectory(long id, long newParentDirectoryId) {
-            Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
-            Directory parentDirectory = directoryRepository.findById(newParentDirectoryId).orElseThrow(() -> new RessourceNotFoundException("The new parent repository doesn't exist !!") );
-            directory.setParentDirectory(parentDirectory);
-            directoryRepository.save(directory);
-            String successMessage = "Your directory's path was changed successfully !";
-            return ResponseHandler.generateResponse(successMessage, HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<Object> deleteDirectoryById(long id) {
+    public ResponseEntity<Object> deleteDirectoryById(long id,UserDetails userDetails) {
         Directory directory  = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist!!"));
         Directory parentDirectory = directory.getParentDirectory();
         List<Directory> children = parentDirectory.getChildren();
@@ -142,7 +150,7 @@ public class DirectoryServiceImpl implements DirectoryService{
     }
 
     @Override
-    public ResponseEntity<Object> copyDirectory(long id, long parentId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Object> copyDirectory(long id, long parentId, UserDetails userDetails) {
         Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
         Directory newParentDirectory = directoryRepository.findById(parentId).orElseThrow( () -> new RessourceNotFoundException("The new parent directory doesn't exist !!"));
         if ((Objects.equals(newParentDirectory.getOwner().getEmail(), userDetails.getUsername()))) {
@@ -195,15 +203,17 @@ public class DirectoryServiceImpl implements DirectoryService{
 
 
     @Override
-    public ResponseEntity<Object> updateDirectory(long id, DirectoryDTO directoryDTO, @AuthenticationPrincipal UserDetails userDetails) {
- /*       if (Objects.equals(userDetails.getUsername(),directoryDTO.ownerEmail())) {
-            Directory directory = directoryDTOMapper.reverse(directoryDTO);
-            directory.setId(id);
+    public ResponseEntity<Object> updateDirectory(long id, String name, String description, UserDetails userDetails) {
+        Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
+        if (Objects.equals(directory.getOwner(), userDetails)){
+            directory.setName(name);
+            directory.setDescription(description);
             directoryRepository.save(directory);
-            return ;
+            String successMessage = String.format("Directory Updated Successfully");
+            return ResponseHandler.generateResponse(successMessage, HttpStatus.OK);
+        } else {
+            throw (new RessourceNotFoundException("This directory doesn't exist !!"));
         }
-*/
-        return null;
     }
 
     public Directory findByNameAndParentDirectory(String name, long parentId){
