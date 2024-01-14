@@ -216,6 +216,18 @@ public class DirectoryServiceImpl implements DirectoryService{
         }
     }
 
+    @Override
+    public ResponseEntity<Object> createNewTestDirectory(DirectoryDTO directoryDTO) {
+        directoryRepository.save(new Directory(
+                directoryDTO.name(),
+                directoryDTO.description(),
+                null,
+                null,
+                new ArrayList<Directory>()
+        ));
+        return ResponseHandler.generateResponse("Created Successfully", HttpStatus.OK);
+    }
+
     public Directory findByNameAndParentDirectory(String name, long parentId){
         return directoryRepository.findByNameAndParentDirectory(name,parentId);
     }

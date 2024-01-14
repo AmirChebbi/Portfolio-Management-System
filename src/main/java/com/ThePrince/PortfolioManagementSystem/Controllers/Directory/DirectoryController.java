@@ -1,12 +1,8 @@
 package com.ThePrince.PortfolioManagementSystem.Controllers.Directory;
 
-import com.ThePrince.PortfolioManagementSystem.DAOs.Directory.Directory;
-import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
+
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTO;
-import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathDTO;
 import com.ThePrince.PortfolioManagementSystem.Services.Directory.DirectoryService;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,8 +19,13 @@ public class DirectoryController {
         this.directoryService = directoryService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Object> createNewDirectory(@RequestBody long parentId, @RequestBody DirectoryDTO directoryDTO, @AuthenticationPrincipal UserDetails userDetails ){
+    @PostMapping("/createtest")
+    public ResponseEntity<Object> createNewTestDirectory(@RequestBody DirectoryDTO directoryDTO){
+        return directoryService.createNewTestDirectory(directoryDTO);
+    }
+
+    @PostMapping("/create/{parentId}")
+    public ResponseEntity<Object> createNewDirectory(@PathVariable long parentId, @RequestBody DirectoryDTO directoryDTO, @AuthenticationPrincipal UserDetails userDetails ){
         return directoryService.createNewDirectory(parentId,directoryDTO,userDetails);
     }
 
@@ -34,15 +35,29 @@ public class DirectoryController {
     }
 
     @GetMapping("/find_path/{id}")
-    public ResponseEntity<Object> findDirectoryPath(long id, List<DirectoryPathDTO> directoryPathDTOS); //returns the directory Path
+    public ResponseEntity<Object> findDirectoryPath(long id){
+        return directoryService.findDirectoryPath(id);
+    }
 
-    public ResponseEntity<Object> moveDirectory(long id, long newParentDirectoryId);   //returns the new Parent Directory
+    @PutMapping("/move/{id}")
+    public ResponseEntity<Object> moveDirectory(@PathVariable long id, @RequestParam long newParentDirectoryId, @AuthenticationPrincipal UserDetails userDetails) {
+        return directoryService.moveDirectory(id, newParentDirectoryId, userDetails);
+    }
 
-    public ResponseEntity<Object> deleteDirectoryById(long id); //returns all the child directories that were deleted with it
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Object> deleteDirectoryById(@PathVariable long id, @AuthenticationPrincipal UserDetails userDetails){
+        return directoryService.deleteDirectoryById(id, userDetails);
+    }
 
-    public ResponseEntity<Object> copyDirectory(long id, long parentId, @AuthenticationPrincipal UserDetails userDetails);
+    @PostMapping("/copy/{id}")
+    public ResponseEntity<Object> copyDirectory(@PathVariable long id, @RequestParam long parentId, @AuthenticationPrincipal UserDetails userDetails){
+        return directoryService.copyDirectory(id, parentId, userDetails);
+    }
 
-    public ResponseEntity<Object> updateDirectory(long id, String name, String description, @AuthenticationPrincipal UserDetails userDetails);
+    @PostMapping("/update/{id}")
+    public ResponseEntity<Object> updateDirectory(@PathVariable long id, @RequestParam String name,@RequestParam String description, @AuthenticationPrincipal UserDetails userDetails){
+        return directoryService.updateDirectory(id, name, description, userDetails);
+    }
 
 
 }

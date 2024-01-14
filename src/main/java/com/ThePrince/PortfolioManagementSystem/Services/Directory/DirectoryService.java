@@ -31,4 +31,6 @@ public interface DirectoryService {
     public ResponseEntity<Object> copyDirectory(long id, long parentId, UserDetails userDetails);
 
     public ResponseEntity<Object> updateDirectory(long id, String name, String description, UserDetails userDetails);
+
+    ResponseEntity<Object> createNewTestDirectory(DirectoryDTO directoryDTO);
 }
