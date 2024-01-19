@@ -1,11 +1,13 @@
 package com.ThePrince.PortfolioManagementSystem.DAOs.NewsLettre;
 
-import com.ThePrince.PortfolioManagementSystem.DAOs.FollowList.SubscriberList;
+import com.ThePrince.PortfolioManagementSystem.DAOs.FollowList.FollowList;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Entity
@@ -33,5 +35,5 @@ public class NewsLetter {
     private String content;
 
     @OneToOne
-    private SubscriberList subscriberList;
+    private FollowList followList;
 }
