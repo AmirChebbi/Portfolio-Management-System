@@ -10,5 +10,6 @@ public record DirectoryDTO(
         String ownerEmail,
         long parentDirectoryId,
         String parentDirectoryName,
-        List<DirectoryPathDTO> children
+        List<DirectoryPathDTO> children,
+        boolean isVisible
 ) {}

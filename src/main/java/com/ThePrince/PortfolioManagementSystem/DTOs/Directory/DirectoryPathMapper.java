@@ -8,12 +8,12 @@ import java.util.function.Function;
 @Service
 public class DirectoryPathMapper implements Function<Directory,DirectoryPathDTO> {
 
-
     @Override
     public DirectoryPathDTO apply(Directory directory) {
         return new DirectoryPathDTO(
                 directory.getId(),
-                directory.getName()
+                directory.getName(),
+                directory.isVisible()
         );
     }
 }

@@ -1,6 +1,5 @@
-package com.ThePrince.PortfolioManagementSystem.DAOs.SubscriberList;
+package com.ThePrince.PortfolioManagementSystem.DAOs.FollowList;
 
-import ch.qos.logback.core.net.ObjectWriter;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Visitor;
 import jakarta.persistence.*;
@@ -15,7 +14,7 @@ import java.util.List;
 @Data
 @Entity
 @Table
-public class SubscriberList {
+public class FollowList {
     @SequenceGenerator(
             name = "sub_seq",
             sequenceName = "sub_seq",

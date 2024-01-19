@@ -1,7 +1,9 @@
 package com.ThePrince.PortfolioManagementSystem.DTOs.Directory;
 
-public record DirectoryPathDTO(
+public record DirectoryUpdater(
         long id,
         String name,
+        String description,
         boolean isVisible
-) {}
+) {
+}

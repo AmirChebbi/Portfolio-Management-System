@@ -6,9 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -19,13 +21,9 @@ import java.util.UUID;
 @Table
 public class UserEntity implements UserDetails {
 
-    @SequenceGenerator(
-            name = "user_sequence",
-            sequenceName = "user_ sequence",
-            allocationSize = 1
-    )
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_sequence")
+    @GeneratedValue
     private UUID id;
 
     @Column(nullable = false)
@@ -47,10 +45,12 @@ public class UserEntity implements UserDetails {
     @Column(unique = true)
     private String phoneNumber;
 
+    private boolean isEnabled;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.singletonList(new SimpleGrantedAuthority(this.role.getName()));
     }
 
     @Override
@@ -65,21 +65,21 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return this.isEnabled;
     }
 }

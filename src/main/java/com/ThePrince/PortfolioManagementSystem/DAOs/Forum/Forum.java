@@ -1,6 +1,5 @@
 package com.ThePrince.PortfolioManagementSystem.DAOs.Forum;
 
-import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,12 +28,11 @@ public class Forum {
     private UserEntity sender;
 
     @ManyToOne
-    private Owner receiver;
+    private UserEntity receiver;
 
     @Column(nullable = false)
     private String Subject;
 
     @Column(nullable = false)
     private String content;
-
 }

@@ -16,7 +16,6 @@ import java.util.Optional;
 @Table
 public class Directory {
 
-
     @SequenceGenerator(
             name = "direct_sequence",
             sequenceName = "direct_sequence",
@@ -45,6 +44,18 @@ public class Directory {
 
     @OneToMany
     private List<Directory> children;
+
+    @Column(nullable = false)
+    private boolean isVisible;
+
+    public Directory(String name, String description, Owner owner, Directory parentDirectory, List<Directory> children, boolean isVisible) {
+        this.name = name;
+        this.description = description;
+        this.owner = owner;
+        this.parentDirectory = parentDirectory;
+        this.children = children;
+        this.isVisible = isVisible;
+    }
 
     public Directory(String name, String description, Owner owner, Directory parentDirectory, List<Directory> children) {
         this.name = name;

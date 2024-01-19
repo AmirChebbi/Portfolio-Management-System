@@ -1,11 +1,10 @@
 package com.ThePrince.PortfolioManagementSystem.DAOs.NewsLettre;
 
-import com.ThePrince.PortfolioManagementSystem.DAOs.SubscriberList.SubscriberList;
+import com.ThePrince.PortfolioManagementSystem.DAOs.FollowList.SubscriberList;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @Data

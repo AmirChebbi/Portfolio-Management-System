@@ -10,7 +10,6 @@ public class DirectoryDTOMapper implements Function<Directory, DirectoryDTO> {
 
     private final DirectoryPathMapper directoryPathMapper;
 
-//    private final DirectoryRepository directoryRepository;
     public DirectoryDTOMapper(DirectoryPathMapper directoryPathMapper) {
         this.directoryPathMapper = directoryPathMapper;
     }
@@ -25,7 +24,8 @@ public class DirectoryDTOMapper implements Function<Directory, DirectoryDTO> {
                 directory.getOwner().getEmail(),
                 directory.getParentDirectory().getId(),
                 directory.getParentDirectory().getName(),
-                directory.getChildren().stream().map(directoryPathMapper).toList()
+                directory.getChildren().stream().map(directoryPathMapper).toList(),
+                directory.isVisible()
         );
     }
 

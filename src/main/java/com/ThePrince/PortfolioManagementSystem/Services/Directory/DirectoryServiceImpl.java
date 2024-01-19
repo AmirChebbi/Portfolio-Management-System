@@ -2,21 +2,16 @@ package com.ThePrince.PortfolioManagementSystem.Services.Directory;
 
 import com.ThePrince.PortfolioManagementSystem.DAOs.Directory.Directory;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.Owner;
-import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTO;
-import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTOMapper;
-import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathDTO;
-import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathMapper;
+import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.*;
 import com.ThePrince.PortfolioManagementSystem.Exceptions.DirectoryExistsException;
 import com.ThePrince.PortfolioManagementSystem.Exceptions.RessourceNotFoundException;
 import com.ThePrince.PortfolioManagementSystem.Handler.ResponseHandler;
 import com.ThePrince.PortfolioManagementSystem.Repositories.Directory.DirectoryRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,7 +44,7 @@ public class DirectoryServiceImpl implements DirectoryService{
 
     @Override
     public ResponseEntity<Object> createNewDirectory(long parentId, DirectoryDTO directoryDTO, UserDetails userDetails) {
-        if (Objects.nonNull(findByNameAndParentDirectory(directoryDTO.name(), parentId))) {
+        if (Objects.isNull(findByNameAndParentDirectory(directoryDTO.name(), parentId))) {
             Directory newDirectory = new Directory(
                     directoryDTO.name(),
                     directoryDTO.description(),
@@ -80,7 +75,6 @@ public class DirectoryServiceImpl implements DirectoryService{
         List<DirectoryPathDTO> directoryPathDTOS = new ArrayList<>();
         directoryPathDTOS.add(directoryPathMapper.apply(directory));
         while (Objects.nonNull(directory.getParentDirectory())){
-
         }
         return ResponseHandler.generateResponse(directoryPathDTOS, HttpStatus.OK);
     }
@@ -109,43 +103,23 @@ public class DirectoryServiceImpl implements DirectoryService{
         children.remove(directory);
         parentDirectory.setChildren(children);
         directoryRepository.save(parentDirectory);
-
-//        List<DirectoryPathDTO> list = deleteDirectoryByIdRecursive(id);
-
         int sum = deleteDirectoryByIdRecursive(id,0);
         String successMessage = String.format("Your directory named "+ directory.getName()+" was deleted successfully, and a sum of "+sum + " directories were deleted with it.");
         return ResponseHandler.generateResponse(successMessage, HttpStatus.OK);
     }
 
     public int deleteDirectoryByIdRecursive(long id, int sum) {
-//    public List<DirectoryPathDTO> deleteDirectoryByIdRecursive(long id) {
-
         Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This repository doesn't Exist!!"));
-
-//        List<DirectoryPathDTO> list = new ArrayList<>();
-
         if (!directory.getChildren().isEmpty()){
             for (Directory child : directory.getChildren()){
                 sum =+ deleteDirectoryByIdRecursive(child.getId(),sum);
-
-//                 list.addAll(deleteDirectoryByIdRecursive(child.getId()));
             }
-//            list.add(directoryPathMapper.apply(directory));
-
             directoryRepository.deleteById(id);
             return sum;
 
-//            return list;
-
         } else {
-
-//            DirectoryPathDTO directoryPathDTO = directoryPathMapper.apply(directory);
             directoryRepository.deleteById(id);
-
-//            list.add(directoryPathDTO);
-//            return list;
             return sum+1;
-
         }
     }
 
@@ -160,7 +134,8 @@ public class DirectoryServiceImpl implements DirectoryService{
                         directory.getDescription(),
                         directory.getOwner(),
                         directory.getParentDirectory(),
-                        new ArrayList<Directory>()
+                        new ArrayList<Directory>(),
+                        directory.isVisible()
                 );
                 directoryRepository.save(copy);
             } else {
@@ -169,7 +144,8 @@ public class DirectoryServiceImpl implements DirectoryService{
                         directory.getDescription(),
                         directory.getOwner(),
                         newParentDirectory,
-                        new ArrayList<Directory>()
+                        new ArrayList<Directory>(),
+                        directory.isVisible()
                 );
                 directoryRepository.save(copy);
             }
@@ -201,13 +177,13 @@ public class DirectoryServiceImpl implements DirectoryService{
         }
     }
 
-
     @Override
-    public ResponseEntity<Object> updateDirectory(long id, String name, String description, UserDetails userDetails) {
-        Directory directory = directoryRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
+    public ResponseEntity<Object> updateDirectory(DirectoryUpdater directoryUpdater, UserDetails userDetails) {
+        Directory directory = directoryRepository.findById(directoryUpdater.id()).orElseThrow(() -> new RessourceNotFoundException("This directory doesn't exist !!"));
         if (Objects.equals(directory.getOwner(), userDetails)){
-            directory.setName(name);
-            directory.setDescription(description);
+            directory.setName(directoryUpdater.name());
+            directory.setDescription(directoryUpdater.description());
+            directory.setVisible(directoryUpdater.isVisible());
             directoryRepository.save(directory);
             String successMessage = String.format("Directory Updated Successfully");
             return ResponseHandler.generateResponse(successMessage, HttpStatus.OK);
@@ -231,5 +207,4 @@ public class DirectoryServiceImpl implements DirectoryService{
     public Directory findByNameAndParentDirectory(String name, long parentId){
         return directoryRepository.findByNameAndParentDirectory(name,parentId);
     }
-
 }

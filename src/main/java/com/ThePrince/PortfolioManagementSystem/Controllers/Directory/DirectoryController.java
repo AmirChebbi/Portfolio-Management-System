@@ -2,13 +2,13 @@ package com.ThePrince.PortfolioManagementSystem.Controllers.Directory;
 
 
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryDTO;
+import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryUpdater;
 import com.ThePrince.PortfolioManagementSystem.Services.Directory.DirectoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/directory")
@@ -19,7 +19,7 @@ public class DirectoryController {
         this.directoryService = directoryService;
     }
 
-    @PostMapping("/createtest")
+    @PostMapping("/createTest")
     public ResponseEntity<Object> createNewTestDirectory(@RequestBody DirectoryDTO directoryDTO){
         return directoryService.createNewTestDirectory(directoryDTO);
     }
@@ -29,12 +29,12 @@ public class DirectoryController {
         return directoryService.createNewDirectory(parentId,directoryDTO,userDetails);
     }
 
-    @GetMapping("/get_by_id/{id}")
+    @GetMapping("/getById/{id}")
     public ResponseEntity<Object> getDirectoryById(@PathVariable long id){
         return directoryService.getDirectoryById(id);
     }
 
-    @GetMapping("/find_path/{id}")
+    @GetMapping("/findPath/{id}")
     public ResponseEntity<Object> findDirectoryPath(long id){
         return directoryService.findDirectoryPath(id);
     }
@@ -55,9 +55,8 @@ public class DirectoryController {
     }
 
     @PostMapping("/update/{id}")
-    public ResponseEntity<Object> updateDirectory(@PathVariable long id, @RequestParam String name,@RequestParam String description, @AuthenticationPrincipal UserDetails userDetails){
-        return directoryService.updateDirectory(id, name, description, userDetails);
+    public ResponseEntity<Object> updateDirectory(@RequestBody DirectoryUpdater directoryUpdater, @AuthenticationPrincipal UserDetails userDetails){
+        return directoryService.updateDirectory(directoryUpdater,userDetails);
     }
-
 
 }

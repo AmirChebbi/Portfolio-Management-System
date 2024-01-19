@@ -20,6 +20,26 @@ public class ResponseHandler {
         return new ResponseEntity<>(map, status);
     }
 
+    public static ResponseEntity<Object> generateResponse(String message, Object object, HttpStatus status){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("http", status.value());
+        map.put("message", message);
+        map.put("data", object);
+        map.put("sendingDate", LocalDateTime.now());
+        return new ResponseEntity<>(map, status);
+    }
+
+    public static ResponseEntity<Object> generateResponse(Object object, HttpStatus status, int size, int total){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("http", status.value());
+        map.put("status", "success");
+        map.put("size",size);
+        map.put("total", total);
+        map.put("data", object);
+        map.put("sendingDate", LocalDateTime.now());
+        return new ResponseEntity<>(map, status);
+    }
+
     public static ResponseEntity<Object> generateResponse(Object object, HttpStatus status){
         HashMap<String, Object> map = new HashMap<>();
         map.put("http", status.value());
@@ -28,5 +48,4 @@ public class ResponseHandler {
         map.put("sendingDate", LocalDateTime.now());
         return new ResponseEntity<>(map, status);
     }
-
 }
