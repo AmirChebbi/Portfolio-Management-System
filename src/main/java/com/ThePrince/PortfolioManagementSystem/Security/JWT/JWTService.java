@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Objects;
 import java.util.function.Function;
 
 
@@ -69,5 +70,12 @@ public class JWTService {
         byte [] keyBytes = Decoders.BASE64.decode(SecurityConstants.JWT_ACCESS_SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
+    public boolean tokenExpired(String token){
+        return extractExpirationFromToken(token).before(new Date());
+    }
+    public boolean userTokenValid(String token, UserEntity userEntity){
+        String email = extractEmailFromToken(token);
+        return Objects.equals(email,userEntity.getEmail());
+    }
+    
 }
