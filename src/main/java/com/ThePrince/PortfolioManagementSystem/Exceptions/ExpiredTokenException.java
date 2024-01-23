@@ -1,13 +1,12 @@
 package com.ThePrince.PortfolioManagementSystem.Exceptions;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.security.SecureRandom;
-
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class RessourceNotFoundException extends RuntimeException{
-    public RessourceNotFoundException(String message){
+@ResponseStatus(HttpStatus.FORBIDDEN)
+public class ExpiredTokenException extends RuntimeException{
+    public ExpiredTokenException(String message){
         super(message);
     }
 }

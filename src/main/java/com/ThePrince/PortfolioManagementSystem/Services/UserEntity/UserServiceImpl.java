@@ -2,12 +2,11 @@ package com.ThePrince.PortfolioManagementSystem.Services.UserEntity;
 
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.UserEntity;
 import com.ThePrince.PortfolioManagementSystem.DTOs.UserEntity.UserDTOMapper;
-import com.ThePrince.PortfolioManagementSystem.Exceptions.RessourceNotFoundException;
+import com.ThePrince.PortfolioManagementSystem.Exceptions.ResourceNotFoundException;
 import com.ThePrince.PortfolioManagementSystem.Handler.ResponseHandler;
 import com.ThePrince.PortfolioManagementSystem.Repositories.Role.RoleRepository;
 import com.ThePrince.PortfolioManagementSystem.Repositories.SubscriberList.FollowListRepository;
 import com.ThePrince.PortfolioManagementSystem.Repositories.UserEntity.UserRepository;
-import jakarta.jws.soap.SOAPBinding;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public ResponseEntity<Object> getUserById(UUID id) {
-        UserEntity user = userRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("User Doesn't exist !!"));
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User Doesn't exist !!"));
         return ResponseHandler.generateResponse(userDTOMapper.apply(user), HttpStatus.OK);
     }
 
@@ -62,7 +61,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public ResponseEntity<Object> viewProfile(UserDetails userDetails) {
-        UserEntity user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new RessourceNotFoundException("Who tf Are you ??"));
+        UserEntity user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new ResourceNotFoundException("Who tf Are you ??"));
         if(Objects.equals(user.getRole().getName(),"OWNER")){
             int subCount = followListRepository.getFollowCount(userDetails.getUsername());
 
@@ -71,7 +70,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public ResponseEntity<Object> enableOrDisableUser(UUID id, boolean enable) {
-        UserEntity user = userRepository.findById(id).orElseThrow(()-> new RessourceNotFoundException("User doesn't exist!!"));
+        UserEntity user = userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("User doesn't exist!!"));
         user.setEnabled(enable);
         userRepository.save(user);
         String successMessage = String.format("User account was set to "+ enable+" successfully");
@@ -80,7 +79,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public ResponseEntity<Object> enableById(UUID id) {
-        UserEntity user = userRepository.findById(id).orElseThrow(()-> new RessourceNotFoundException("User doesn't exist!!"));
+        UserEntity user = userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("User doesn't exist!!"));
         user.setEnabled(true);
         userRepository.save(user);
         String successMessage = String.format("User account was enabled successfully");
@@ -89,7 +88,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserEntity getByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new RessourceNotFoundException("User doesn't exist !!"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User doesn't exist !!"));
     }
 
     @Override

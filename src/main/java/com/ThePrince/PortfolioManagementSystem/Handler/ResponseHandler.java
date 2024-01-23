@@ -48,4 +48,11 @@ public class ResponseHandler {
         map.put("sendingDate", LocalDateTime.now());
         return new ResponseEntity<>(map, status);
     }
+    public static ResponseEntity<Object> generateErrorResponse(Object object, HttpStatus status){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("http", status);
+        map.put("errorMessage",object);
+        map.put("Date", LocalDateTime.now());
+        return new ResponseEntity<>(map, status);
+    }
 }

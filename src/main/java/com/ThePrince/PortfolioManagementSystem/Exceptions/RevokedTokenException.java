@@ -1,7 +1,6 @@
 package com.ThePrince.PortfolioManagementSystem.Exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.FORBIDDEN)
