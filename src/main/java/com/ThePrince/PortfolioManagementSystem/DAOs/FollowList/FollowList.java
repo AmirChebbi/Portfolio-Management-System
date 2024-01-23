@@ -31,7 +31,7 @@ public class FollowList {
     private Owner owner;
 
     @OneToMany
-    private List<Visitor> subscribers;
+    private List<Visitor> followers;
 
 }
 

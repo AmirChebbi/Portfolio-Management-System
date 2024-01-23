@@ -35,7 +35,7 @@ public class DirectoryController {
     }
 
     @GetMapping("/findPath/{id}")
-    public ResponseEntity<Object> findDirectoryPath(long id){
+    public ResponseEntity<Object> findDirectoryPath(@PathVariable long id){
         return directoryService.findDirectoryPath(id);
     }
 

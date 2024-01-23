@@ -1,9 +1,12 @@
 package com.ThePrince.PortfolioManagementSystem.Services.UserEntity;
 
+import com.ThePrince.PortfolioManagementSystem.DAOs.Evaluation.Evaluation;
+import com.ThePrince.PortfolioManagementSystem.DAOs.File.File;
 import com.ThePrince.PortfolioManagementSystem.DAOs.UserEntity.UserEntity;
 import com.ThePrince.PortfolioManagementSystem.DTOs.UserEntity.UserDTOMapper;
 import com.ThePrince.PortfolioManagementSystem.Exceptions.ResourceNotFoundException;
 import com.ThePrince.PortfolioManagementSystem.Handler.ResponseHandler;
+import com.ThePrince.PortfolioManagementSystem.Repositories.Directory.DirectoryRepository;
 import com.ThePrince.PortfolioManagementSystem.Repositories.Role.RoleRepository;
 import com.ThePrince.PortfolioManagementSystem.Repositories.SubscriberList.FollowListRepository;
 import com.ThePrince.PortfolioManagementSystem.Repositories.UserEntity.UserRepository;
@@ -14,9 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -25,12 +26,14 @@ public class UserServiceImpl implements UserService{
     private final UserDTOMapper userDTOMapper;
     private final RoleRepository roleRepository;
     private final FollowListRepository followListRepository;
+    private final DirectoryRepository directoryRepository;
 
-    public UserServiceImpl(UserRepository userRepository, UserDTOMapper userDTOMapper, RoleRepository roleRepository, FollowListRepository followListRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserDTOMapper userDTOMapper, RoleRepository roleRepository, FollowListRepository followListRepository, DirectoryRepository directoryRepository) {
         this.userRepository = userRepository;
         this.userDTOMapper = userDTOMapper;
         this.roleRepository = roleRepository;
         this.followListRepository = followListRepository;
+        this.directoryRepository = directoryRepository;
     }
 
     @Override
@@ -59,12 +62,30 @@ public class UserServiceImpl implements UserService{
         return ResponseHandler.generateResponse(userEntities,HttpStatus.OK,userEntities.size(),userRepository.getCountPaged());
     }
 
+    //Method still under construction due to the fact that the work, forum and eval
+    //related Classes are not yet ready, but so I don't get an error while testing :}
     @Override
     public ResponseEntity<Object> viewProfile(UserDetails userDetails) {
         UserEntity user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new ResourceNotFoundException("Who tf Are you ??"));
         if(Objects.equals(user.getRole().getName(),"OWNER")){
-            int subCount = followListRepository.getFollowCount(userDetails.getUsername());
-
+            HashMap<String, Integer> countMap = new HashMap<>() ;
+            countMap.put("followCount", followListRepository.getFollowerCount(userDetails.getUsername()));
+            countMap.put("directoryCount", directoryRepository.getUserDirectoryCount(userDetails.getUsername()));
+//            int evalCount
+//            int forumCount
+//            int workCount
+            List<File> topFiles = new ArrayList<>();
+            return ResponseHandler.generateProfileResponse(countMap, Collections.singletonList(topFiles),HttpStatus.OK);
+        } else if (Objects.equals(user.getRole().getName(),"VISITOR")){
+            HashMap<String, Integer> countMap = new HashMap<>() ;
+            countMap.put("followCount", followListRepository.getFollowingCount(userDetails.getUsername()));
+            countMap.put("directoryCount", directoryRepository.getUserDirectoryCount(userDetails.getUsername()));
+//            int evalCount
+//            int forumCount
+            List<Evaluation> lastTraffic = new ArrayList<>();
+            return ResponseHandler.generateProfileResponse(countMap, Collections.singletonList(lastTraffic),HttpStatus.OK);
+        } else {
+            return null; //Will become the Admin Dashboard later.
         }
     }
 
@@ -82,7 +103,7 @@ public class UserServiceImpl implements UserService{
         UserEntity user = userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("User doesn't exist!!"));
         user.setEnabled(true);
         userRepository.save(user);
-        String successMessage = String.format("User account was enabled successfully");
+        String successMessage = "User account was enabled successfully";
         return ResponseHandler.generateResponse(successMessage,HttpStatus.OK);
     }
 
@@ -93,10 +114,6 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public boolean isEmailRegistered(String email) {
-        if (userRepository.findByEmail(email).isEmpty()){
-            return false;
-        } else {
-            return true;
-        }
+        return userRepository.findByEmail(email).isPresent();
     }
 }

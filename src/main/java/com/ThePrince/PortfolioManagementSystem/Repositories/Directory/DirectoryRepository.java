@@ -18,4 +18,7 @@ public interface DirectoryRepository extends JpaRepository<Directory, Long> {
 
     @Query(value = "SELECT d from Directory d where d.id=:id and d.owner.email=:email")
     Optional<Directory> findByIdAndOwnerEmail(@Param("id") long id,@Param("email") String email);
+
+    @Query(value = "SELECT count(d) from Directory d where d.owner.email=:email")
+    int getUserDirectoryCount(String username);
 }

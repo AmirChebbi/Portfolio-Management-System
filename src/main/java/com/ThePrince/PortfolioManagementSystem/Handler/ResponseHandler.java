@@ -1,11 +1,13 @@
 package com.ThePrince.PortfolioManagementSystem.Handler;
 
+import com.ThePrince.PortfolioManagementSystem.DAOs.File.File;
 import com.ThePrince.PortfolioManagementSystem.DTOs.Directory.DirectoryPathDTO;
-import com.nimbusds.oauth2.sdk.util.date.SimpleDate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,10 +50,19 @@ public class ResponseHandler {
         map.put("sendingDate", LocalDateTime.now());
         return new ResponseEntity<>(map, status);
     }
-    public static ResponseEntity<Object> generateErrorResponse(Object object, HttpStatus status){
+    public static ResponseEntity<Object> generateErrorResponse(String message, HttpStatus status){
         HashMap<String, Object> map = new HashMap<>();
         map.put("http", status);
-        map.put("errorMessage",object);
+        map.put("errorMessage",message);
+        map.put("Date", LocalDateTime.now());
+        return new ResponseEntity<>(map, status);
+    }
+    public static ResponseEntity<Object> generateProfileResponse(HashMap countMap, List<Object> list, HttpStatus status){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("http", status);
+        map.put("message", "success");
+        map.put("counts", countMap);
+        map.put("objectList",list);
         map.put("Date", LocalDateTime.now());
         return new ResponseEntity<>(map, status);
     }

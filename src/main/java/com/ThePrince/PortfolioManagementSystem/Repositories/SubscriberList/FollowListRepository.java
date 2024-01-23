@@ -10,5 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FollowListRepository extends JpaRepository<FollowList, Long> {
     @Query(value = "select count(f) from FollowList f where f.owner.email=:email")
-    int getFollowCount(@Param("email") String email);
+    int getFollowerCount(@Param("email") String email);
+    @Query(value = "select count(f) from FollowList f, UserEntity u where =:email")
+    Integer getFollowingCount(String username);
 }
