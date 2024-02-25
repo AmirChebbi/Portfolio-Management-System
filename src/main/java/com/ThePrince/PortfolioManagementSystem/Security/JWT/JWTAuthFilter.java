@@ -64,7 +64,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request,response);
                 return;
             }
-            if (Objects.isNull(email) || Objects.nonNull(SecurityContextHolder.getContext().getAuthentication())){
+            if (Objects.nonNull(email) || Objects.nonNull(SecurityContextHolder.getContext().getAuthentication())){
                 filterChain.doFilter(request, response);
                 return;
             }

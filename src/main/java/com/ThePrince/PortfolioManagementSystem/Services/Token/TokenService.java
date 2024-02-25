@@ -14,5 +14,4 @@ public interface TokenService {
     public List<Token> saveAll(List<Token> tokens);
     public Token generateToken(UserEntity userEntity);
     public Token generateRefreshToken(UserEntity userEntity, Token token);
-
 }

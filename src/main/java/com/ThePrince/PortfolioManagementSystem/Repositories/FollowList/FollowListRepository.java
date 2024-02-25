@@ -1,4 +1,4 @@
-package com.ThePrince.PortfolioManagementSystem.Repositories.SubscriberList;
+package com.ThePrince.PortfolioManagementSystem.Repositories.FollowList;
 
 import com.ThePrince.PortfolioManagementSystem.DAOs.FollowList.FollowList;
 import jakarta.transaction.Transactional;
@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface FollowListRepository extends JpaRepository<FollowList, Long> {
     @Query(value = "select count(f) from FollowList f where f.owner.email=:email")
     int getFollowerCount(@Param("email") String email);
-    @Query(value = "select count(f) from FollowList f, UserEntity u where =:email")
-    Integer getFollowingCount(String username);
+    @Query(value = "select count(f) from FollowList f, UserEntity u where u.email=:email")
+    Integer getFollowingCount(@Param("email") String email);
 }

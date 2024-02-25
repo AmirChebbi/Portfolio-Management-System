@@ -8,7 +8,7 @@ import com.ThePrince.PortfolioManagementSystem.Exceptions.ResourceNotFoundExcept
 import com.ThePrince.PortfolioManagementSystem.Handler.ResponseHandler;
 import com.ThePrince.PortfolioManagementSystem.Repositories.Directory.DirectoryRepository;
 import com.ThePrince.PortfolioManagementSystem.Repositories.Role.RoleRepository;
-import com.ThePrince.PortfolioManagementSystem.Repositories.SubscriberList.FollowListRepository;
+import com.ThePrince.PortfolioManagementSystem.Repositories.FollowList.FollowListRepository;
 import com.ThePrince.PortfolioManagementSystem.Repositories.UserEntity.UserRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

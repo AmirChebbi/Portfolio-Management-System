@@ -27,7 +27,7 @@ public class UserEntity implements UserDetails {
     private UUID id;
 
     @Column(nullable = false)
-    private String fistName;
+    private String firstName;
 
     @Column(nullable = false)
     private String lastName;
@@ -47,6 +47,15 @@ public class UserEntity implements UserDetails {
 
     private boolean isEnabled;
 
+    public UserEntity(String firstName, String lastName, String email, String password, Role role, String phoneNumber) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.phoneNumber = phoneNumber;
+        this.isEnabled = false;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class RegistrationDTO {
 
-    private String fistName;
+    private String firstName;
 
     private String lastName;
 

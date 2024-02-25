@@ -34,7 +34,7 @@ public class DirectoryServiceImpl implements DirectoryService{
     @Override
     public Directory intializeGenesisDirectory(Owner owner) {
         return new Directory(
-                owner.getFistName()+" "+owner.getLastName(),
+                owner.getFirstName()+" "+owner.getLastName(),
                 null,
                 owner,
                 null,
